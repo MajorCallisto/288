@@ -1,5 +1,4 @@
 String inputString = "";
-boolean stringComplete = false;
 //4 levels of resolution per pixel
 //or 2 bits
 //a Long has 4 bytes allowing for
@@ -8,7 +7,7 @@ boolean stringComplete = false;
 //e.g. p0_0 (0,0)...(3,3), p1_0 (0,0)...(3,3)
 const int panelSize = 16;
 unsigned long panel[18];
-
+int activePanel = 0;
 void setup() {
   //seed random with input from analog pin to ensure
   //random number generation each sketch
@@ -48,9 +47,6 @@ void encodePanelPixel(int indexPanel, int indexPixel, int pixelVal){
 int decodePanelPixel(int indexPanel, int indexPixel){
   int pixelVal = (bitRead(panel[indexPanel]>>indexPixel*2,0)==1)?bit(0):0;//position 0
   pixelVal += (bitRead(panel[indexPanel]>>indexPixel*2,1)==1)?bit(1):0;//position 1
-//  Serial.print("testShift: ");
-//  Serial.println(pixelVal);
-
   return pixelVal;
 }
 /*Debug example */
@@ -65,13 +61,6 @@ void encode(){
   }
 }
 void loop() {
-  // print the string when a newline arrives:
-  if (stringComplete) {
-    Serial.println(inputString);
-    // clear the string:
-    inputString = "";
-    stringComplete = false;
-  }
 }
 
 /*
@@ -89,9 +78,21 @@ void serialEvent() {
     // if the incoming character is a newline, set a flag
     // so the main loop can do something about it:
     if (inChar == '\n') {
-      stringComplete = true;
+      if (inputString.indexOf("panel:") > -1){
+        inputString.replace("panel:", "");
+        activePanel = inputString.toInt();
+        Serial.println(activePanel);
+        inputString = "";
+      }else{
+        panel[activePanel] = inputString.toInt();
+        Serial.println(decodePanelPixel(0,100));
+        updatePanel();
+      }
     }
   }
+}
+void updatePanel(){
+
 }
 
 

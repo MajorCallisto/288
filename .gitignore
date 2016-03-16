@@ -2,6 +2,7 @@
 bin/
 bin-debug/
 bin-release/
+colorfieldPage/
 
 # Other files and folders
 .settings/
